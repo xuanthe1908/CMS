@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Table, message, Tag } from 'antd';
+import { Table, message, Tag, Button } from 'antd';
+import { Link } from 'react-router-dom';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -139,7 +140,12 @@ const Users = () => {
 
   return (
     <div>
-      <h2>Users</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+        <h2>Users</h2>
+        <Button type="primary">
+          <Link to="/create-user">Create User</Link>
+        </Button>
+      </div>
       <Table
         columns={columns}
         dataSource={users}

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { Layout, message } from 'antd';
-import Login from './Login'; 
+import Login from './Login';
 import Dashboard from './Dashboard';
 import Header from './Header';
 import AuthContext from './AuthContext';
+import CreateUser from './CreateUser';
+import CreateTelegramUser from './CreateTelegramUser';
 
 const { Content } = Layout;
 
@@ -54,6 +56,14 @@ function App() {
                 <Route 
                   path="/dashboard" 
                   element={user ? <Dashboard /> : <Navigate to="/login" />} 
+                />
+                <Route 
+                  path="/create-user"
+                  element={user ? <CreateUser /> : <Navigate to="/login" />}
+                />
+                <Route
+                  path="/create-telegram-user" 
+                  element={user ? <CreateTelegramUser /> : <Navigate to="/login" />}
                 />
                 <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
               </Routes>

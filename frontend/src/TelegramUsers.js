@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Table, message, Tag } from 'antd';
+import { Table, message, Tag, Button } from 'antd';
+import { Link } from 'react-router-dom';
 
 const TelegramUsers = () => {
   const [telegramUsers, setTelegramUsers] = useState([]);
@@ -129,7 +130,12 @@ const TelegramUsers = () => {
 
   return (
     <div>
-      <h2>Telegram Users</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+        <h2>Telegram Users</h2>  
+        <Button type="primary">
+          <Link to="/create-telegram-user">Create Telegram User</Link>
+        </Button>
+      </div>
       <Table
         columns={columns}
         dataSource={telegramUsers}
