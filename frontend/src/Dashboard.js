@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Space, Input, Select, Modal, Form, message } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, ExclamationCircleOutlined, LogoutOutlined } from '@ant-design/icons';
+import { Table, Button, Space, Input, Select, Modal, Form, message, Tabs } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import Users from './Users';
+import TelegramUsers from './TelegramUsers';
 import { useNavigate } from 'react-router-dom';
+import AuthContext from './AuthContext';
 
 const { Search } = Input;
 const { Option } = Select;
 const { confirm } = Modal;
+const { TabPane } = Tabs;
 
 const Dashboard = () => {
   const [data, setData] = useState([]);
@@ -13,37 +17,15 @@ const Dashboard = () => {
   const [editingTask, setEditingTask] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
-  const [user, setUser] = useState(null);
-  const navigate = useNavigate();
   const [searchCriteria, setSearchCriteria] = useState('ID');
  
   useEffect(() => {
-    fetchUser();
     fetchData();
   }, []);
 
-  const fetchUser = () => {
-    fetch('/api/user')
-      .then(res => {
-        if (!res.ok) {
-          throw new Error('Not authenticated');
-        }
-        return res.json();
-      })
-      .then(data => {
-        console.log('User data:', data);
-        setUser(data);
-      })
-      .catch(err => {
-        console.error('Error fetching user:', err);
-        message.error('You are not authenticated. Redirecting to login.');
-        navigate('/');
-      });
-  };
-
   const fetchData = () => {
     setLoading(true);
-    fetch('/api/tasks')
+    fetch('/api/tasks', { credentials: 'include' })
       .then((res) => {
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
@@ -62,17 +44,6 @@ const Dashboard = () => {
       });
   };
 
-
-  const handleLogout = () => {
-    fetch('/auth/logout')
-      .then(() => {
-        setUser(null); 
-        message.success('Logged out successfully');
-        navigate('/'); 
-      })
-      .catch(err => console.error(err));
-  };
-
   const handleCreate = (values) => {
     console.log('Creating task with:', values);
     fetch('/api/tasks', {
@@ -81,6 +52,7 @@ const Dashboard = () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(values),
+      credentials: 'include'
     })
       .then((res) => {
         if (!res.ok) {
@@ -117,6 +89,7 @@ const Dashboard = () => {
   const handleDelete = (id) => {
     fetch(`/api/tasks/${id}`, {
       method: 'DELETE',
+      credentials: 'include'
     })
       .then((res) => res.json())
       .then((result) => {
@@ -138,6 +111,7 @@ const Dashboard = () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(values),
+      credentials: 'include'
     })
       .then((res) => res.json())
       .then(() => {
@@ -151,7 +125,7 @@ const Dashboard = () => {
   const handleSearch = (value) => {
     console.log('Searching with:', { value, criteria: searchCriteria });
     setLoading(true);
-    fetch(`/api/tasks?search=${encodeURIComponent(value)}&criteria=${encodeURIComponent(searchCriteria)}`)
+    fetch(`/api/tasks?search=${encodeURIComponent(value)}&criteria=${encodeURIComponent(searchCriteria)}`, { credentials: 'include' })
       .then((res) => {
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
@@ -238,28 +212,38 @@ const Dashboard = () => {
 
   return (
     <div>
-      <div style={{ marginBottom: 16 }}>
-        <Space>
-        <Select 
-            defaultValue="ID" 
-            style={{ width: 120 }} 
-            onChange={(value) => setSearchCriteria(value)}
-          >
-            <Option value="ID">ID</Option>
-            <Option value="Task ID">Task ID</Option>
-            <Option value="Title">Title</Option>
-          </Select>
-          <Search 
-            placeholder="Search..." 
-            enterButton 
-            onSearch={handleSearch}
-          />
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)}>
-            Create
-          </Button>
-        </Space>
-      </div>
-      <Table columns={columns} dataSource={data} rowKey="id" loading={loading} />
+      <Tabs defaultActiveKey="1">
+        <TabPane tab="Tasks" key="1">
+          <div style={{ marginBottom: 16 }}>
+            <Space>
+              <Select 
+                defaultValue="ID" 
+                style={{ width: 120 }} 
+                onChange={(value) => setSearchCriteria(value)}
+              >
+                <Option value="ID">ID</Option>
+                <Option value="Task ID">Task ID</Option>
+                <Option value="Title">Title</Option>
+              </Select>
+              <Search 
+                placeholder="Search..." 
+                enterButton 
+                onSearch={handleSearch}
+              />
+              <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)}>
+                Create
+              </Button>
+            </Space>
+          </div>
+          <Table columns={columns} dataSource={data} rowKey="id" loading={loading} />
+        </TabPane>
+        <TabPane tab="Users" key="2">
+          <Users />
+        </TabPane>
+        <TabPane tab="Telegram Users" key="3">
+          <TelegramUsers />
+        </TabPane>
+      </Tabs>
 
       <Modal
         title="Create Task"

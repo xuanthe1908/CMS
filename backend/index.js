@@ -3,13 +3,18 @@ const mysql = require('mysql2');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const session = require('express-session');
+const cors = require('cors');
 const config = require('./config');
-const path = require('path'); 
+const path = require('path');
 
 const app = express();
 app.use(express.json());
+app.use(cors({
+  origin: 'http://localhost:5000',
+  credentials: true
+}));
 
-
+// Create connection for genesis_marketplace database
 const db = mysql.createConnection({
     host: config.database.host,
     user: config.database.user,
@@ -17,11 +22,23 @@ const db = mysql.createConnection({
     database: config.database.name,
 });
 
-db.connect((err) => {
-    if (err) throw err;
-    console.log("Connected to MySQL");
+// Create connection for users database
+const usersDb = mysql.createConnection({
+    host: config.usersDatabase.host,
+    user: config.usersDatabase.user,
+    password: config.usersDatabase.password,
+    database: config.usersDatabase.name,
 });
 
+db.connect((err) => {
+    if (err) throw err;
+    console.log("Connected to MySQL - genesis_marketplace");
+});
+
+usersDb.connect((err) => {
+    if (err) throw err;
+    console.log("Connected to MySQL - users");
+});
 
 passport.use(new GoogleStrategy({
     clientID: config.google.clientID,
@@ -37,7 +54,6 @@ passport.deserializeUser((obj, done) => done(null, obj));
 app.use(session({ secret: config.sessionSecret, resave: false, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
-
 
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
@@ -75,8 +91,9 @@ app.get('/auth/logout', (req, res) => {
         return res.json({ message: 'Logged out successfully' });
       });
     });
-  });
+});
 
+// API routes for tasks
 app.get('/api/tasks', (req, res) => {
     console.log('Received search request:', req.query);
     const { search, criteria } = req.query;
@@ -149,29 +166,76 @@ app.put('/api/tasks/:id', (req, res) => {
     const { task_id, title, content, type, point, start_time, end_time, picture } = req.body;
     const sql = 'UPDATE telegram_tasks SET task_id = ?, title = ?, content = ?, type = ?, point = ?, start_time = ?, end_time = ?, picture = ? WHERE id = ?';
     db.query(sql, [task_id, title, content, type, point, start_time, end_time, picture, id], (err, results) => {
-      if (err) throw err;
+      if (err) {
+        console.error('Error updating task:', err);
+        return res.status(500).json({ message: 'Error updating task', error: err.message });
+      }
       res.json({ message: 'Task updated' });
     });
-  });
+});
   
 app.delete('/api/tasks/:id', (req, res) => {
-const { id } = req.params;
-const sql = 'DELETE FROM telegram_tasks WHERE id = ?';
-db.query(sql, [id], (err, results) => {
-    if (err) throw err;
-    res.json({ message: 'Task deleted' });
-});
+    const { id } = req.params;
+    const sql = 'DELETE FROM telegram_tasks WHERE id = ?';
+    db.query(sql, [id], (err, results) => {
+        if (err) {
+          console.error('Error deleting task:', err);
+          return res.status(500).json({ message: 'Error deleting task', error: err.message });
+        }
+        res.json({ message: 'Task deleted' });
+    });
 });
 
-app.post('/api/tasks', (req, res) => {
-const { task_id, title, content, type, point, start_time, end_time, picture } = req.body;
-const sql = 'INSERT INTO telegram_tasks (task_id, title, content, type, point, start_time, end_time, picture) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-db.query(sql, [task_id, title, content, type, point, start_time, end_time, picture], (err, results) => {
-    if (err) throw err;
-    res.json({ message: 'Task created', id: results.insertId });
+// API routes for users
+app.get('/api/users', (req, res) => {
+    const sql = 'SELECT * FROM users';
+    usersDb.query(sql, (err, results) => {
+        if (err) {
+            console.error('Error fetching users:', err);
+            return res.status(500).json({ message: 'Error fetching users', error: err.message });
+        }
+        res.json(results);
+    });
 });
+
+app.post('/api/users', (req, res) => {
+    const { email, wallet_address, name } = req.body;
+    
+    const sql = 'INSERT INTO users (email, wallet_address, name) VALUES (?, ?, ?)';
+    usersDb.query(sql, [email, wallet_address, name], (err, result) => {
+        if (err) {
+            console.error('Error creating user:', err);
+            return res.status(500).json({ message: 'Error creating user', error: err.message });
+        }
+        res.status(201).json({ message: 'User created', id: result.insertId });
+    });
 });
-  
+
+// API routes for telegram users
+app.get('/api/telegram-users', (req, res) => {
+    const sql = 'SELECT * FROM telegram_users';
+    usersDb.query(sql, (err, results) => {
+        if (err) {
+            console.error('Error fetching telegram users:', err);
+            return res.status(500).json({ message: 'Error fetching telegram users', error: err.message });
+        }
+        res.json(results);
+    });
+});
+
+app.post('/api/telegram-users', (req, res) => {
+    const { telegram_id, bot_id, username, lastname, firstname } = req.body;
+    const telegram_id_bot_id = `${telegram_id}_${bot_id}`;
+    
+    const sql = 'INSERT INTO telegram_users (telegram_id_bot_id, telegram_id, bot_id, username, lastname, firstname) VALUES (?, ?, ?, ?, ?, ?)';
+    usersDb.query(sql, [telegram_id_bot_id, telegram_id, bot_id, username, lastname, firstname], (err, result) => {
+        if (err) {
+            console.error('Error creating telegram user:', err);
+            return res.status(500).json({ message: 'Error creating telegram user', error: err.message });
+        }
+        res.status(201).json({ message: 'Telegram user created', id: result.insertId });
+    });
+});
 
 app.use(express.static(path.join(__dirname, '..', 'frontend', 'build')));
 
