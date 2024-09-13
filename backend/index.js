@@ -30,6 +30,38 @@ const usersDb = mysql.createConnection({
     database: config.usersDatabase.name,
 });
 
+// Create connection for telegram_invite_logs database
+const inviteLogsDb = mysql.createConnection({
+    host: config.inviteLogsDatabase.host,
+    user: config.inviteLogsDatabase.user,
+    password: config.inviteLogsDatabase.password,
+    database: config.inviteLogsDatabase.name,
+});
+
+inviteLogsDb.connect((err) => {
+    if (err) throw err;
+    console.log("Connected to MySQL - telegram_invite_logs");
+});
+
+app.get('/api/telegram-invite-logs', (req, res) => {
+    const { code } = req.query;
+    let sql = 'SELECT * FROM telegram_invite_logs';
+    const params = [];
+  
+    if (code) {
+      sql += ' WHERE code = ?';
+      params.push(code);
+    }
+  
+    inviteLogsDb.query(sql, params, (err, results) => {
+      if (err) {
+        console.error('Error fetching invite logs:', err);
+        return res.status(500).json({ message: 'Error fetching invite logs', error: err.message });
+      }
+      res.json(results);
+    });
+  });
+
 db.connect((err) => {
     if (err) throw err;
     console.log("Connected to MySQL - genesis_marketplace");

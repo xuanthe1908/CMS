@@ -3,6 +3,7 @@ import { Table, Button, Space, Input, Select, Modal, Form, message, Tabs } from 
 import { PlusOutlined, EditOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import Users from './Users';
 import TelegramUsers from './TelegramUsers';
+import TelegramInviteLogs from './TelegramInviteLogs';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from './AuthContext';
 
@@ -242,6 +243,9 @@ const Dashboard = () => {
         </TabPane>
         <TabPane tab="Telegram Users" key="3">
           <TelegramUsers />
+        </TabPane>
+        <TabPane tab="Telegram Invite Logs" key="4">
+          <TelegramInviteLogs />
         </TabPane>
       </Tabs>
 
