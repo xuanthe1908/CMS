@@ -6,11 +6,12 @@ const session = require('express-session');
 const cors = require('cors');
 const config = require('./config');
 const path = require('path');
+require('dotenv').config();
 
 const app = express();
 app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost:5000',
+  origin: process.env.CLIENT_ORIGIN || 'http://localhost:5000',
   credentials: true
 }));
 
@@ -60,7 +61,7 @@ app.get('/api/telegram-invite-logs', (req, res) => {
       }
       res.json(results);
     });
-  });
+});
 
 db.connect((err) => {
     if (err) throw err;
