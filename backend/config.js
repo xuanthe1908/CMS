@@ -5,19 +5,7 @@ module.exports = {
         host: process.env.DB_HOST,
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
-        name: process.env.DB_NAME,
-    },
-    usersDatabase: {
-        host: process.env.DB_HOST,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        name: 'users',
-    },
-    inviteLogsDatabase: {
-        host: process.env.DB_HOST,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        name: 'telegram_invite_logs',
+        name: 'genesis_marketplace',
     },
     google: {
         clientID: process.env.GOOGLE_CLIENT_ID,

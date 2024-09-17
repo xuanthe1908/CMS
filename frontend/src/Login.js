@@ -12,7 +12,7 @@ const Login = () => {
     }, []);
 
     const checkAuthStatus = () => {
-        fetch('/api/user')
+        fetch(`${process.env.REACT_APP_API_URL}/api/user`)
             .then(res => {
                 if (!res.ok) {
                     throw new Error('Not authenticated');
@@ -37,10 +37,7 @@ const Login = () => {
 
     const handleGoogleLogin = () => {
         console.log('Initiating Google login');
-        const baseUrl = process.env.NODE_ENV === 'production'
-            ? window.location.origin
-            : 'http://localhost:5000';
-        const googleAuthUrl = `${baseUrl}/auth/google`;
+        const googleAuthUrl = `${process.env.REACT_APP_API_URL}/auth/google`;
         console.log('Redirecting to:', googleAuthUrl);
         window.location.href = googleAuthUrl;
     };

@@ -18,7 +18,7 @@ function App() {
   }, []);
 
   const checkAuthStatus = () => {
-    fetch('/api/user', { credentials: 'include' })
+    fetch(`${process.env.REACT_APP_API_URL}/api/user`, { credentials: 'include' })
       .then(res => {
         if (!res.ok) {
           throw new Error('Not authenticated');
@@ -36,7 +36,7 @@ function App() {
   };
 
   const handleLogout = () => {
-    fetch('/auth/logout', { credentials: 'include' })
+    fetch(`${process.env.REACT_APP_API_URL}/auth/logout`, { credentials: 'include' })
       .then(() => {
         setUser(null);
         message.success('Logged out successfully');

@@ -13,7 +13,7 @@ const TelegramInviteLogs = () => {
 
   const fetchInviteLogs = (code = '') => {
     setLoading(true);
-    fetch(`/api/telegram-invite-logs?code=${code}`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/telegram-invite-logs?code=${code}`)
       .then((res) => res.json())
       .then((data) => {
         setInviteLogs(data);

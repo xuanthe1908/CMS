@@ -7,7 +7,7 @@ const CreateTelegramUser = () => {
   const navigate = useNavigate();
 
   const onFinish = (values) => {
-    fetch('/api/telegram-users', {
+    fetch(`${process.env.REACT_APP_API_URL}/api/telegram-users`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(values),

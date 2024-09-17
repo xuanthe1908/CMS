@@ -15,7 +15,7 @@ const CreateUser = () => {
       cover: cover ? cover[0].response.url : null,
     };
     
-    fetch('/api/users', {
+    fetch(`${process.env.REACT_APP_API_URL}/api/users`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData),
@@ -52,9 +52,9 @@ const CreateUser = () => {
           <Input />
         </Form.Item>
         <Form.Item name="avatar" label="Avatar">
-          <Upload
+        <Upload
             name="avatar"
-            action="/api/upload"
+            action={`${process.env.REACT_APP_API_URL}/api/upload`}
             listType="picture"
             maxCount={1}
           >
@@ -62,9 +62,9 @@ const CreateUser = () => {
           </Upload>
         </Form.Item>
         <Form.Item name="cover" label="Cover">
-          <Upload
+        <Upload
             name="cover"
-            action="/api/upload"
+            action={`${process.env.REACT_APP_API_URL}/api/upload`}
             listType="picture"
             maxCount={1}
           >

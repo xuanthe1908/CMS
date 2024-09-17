@@ -11,7 +11,7 @@ require('dotenv').config();
 const app = express();
 app.use(express.json());
 app.use(cors({
-  origin: process.env.CLIENT_ORIGIN || 'http://localhost:5000',
+  origin: process.env.CLIENT_ORIGIN,
   credentials: true
 }));
 
@@ -23,54 +23,9 @@ const db = mysql.createConnection({
     database: config.database.name,
 });
 
-// Create connection for users database
-const usersDb = mysql.createConnection({
-    host: config.usersDatabase.host,
-    user: config.usersDatabase.user,
-    password: config.usersDatabase.password,
-    database: config.usersDatabase.name,
-});
-
-// Create connection for telegram_invite_logs database
-const inviteLogsDb = mysql.createConnection({
-    host: config.inviteLogsDatabase.host,
-    user: config.inviteLogsDatabase.user,
-    password: config.inviteLogsDatabase.password,
-    database: config.inviteLogsDatabase.name,
-});
-
-inviteLogsDb.connect((err) => {
-    if (err) throw err;
-    console.log("Connected to MySQL - telegram_invite_logs");
-});
-
-app.get('/api/telegram-invite-logs', (req, res) => {
-    const { code } = req.query;
-    let sql = 'SELECT * FROM telegram_invite_logs';
-    const params = [];
-  
-    if (code) {
-      sql += ' WHERE code = ?';
-      params.push(code);
-    }
-  
-    inviteLogsDb.query(sql, params, (err, results) => {
-      if (err) {
-        console.error('Error fetching invite logs:', err);
-        return res.status(500).json({ message: 'Error fetching invite logs', error: err.message });
-      }
-      res.json(results);
-    });
-});
-
 db.connect((err) => {
     if (err) throw err;
     console.log("Connected to MySQL - genesis_marketplace");
-});
-
-usersDb.connect((err) => {
-    if (err) throw err;
-    console.log("Connected to MySQL - users");
 });
 
 passport.use(new GoogleStrategy({
@@ -126,7 +81,7 @@ app.get('/auth/logout', (req, res) => {
     });
 });
 
-// API routes for tasks
+// API routes for telegram_tasks
 app.get('/api/tasks', (req, res) => {
     console.log('Received search request:', req.query);
     const { search, criteria } = req.query;
@@ -171,15 +126,15 @@ app.post('/api/tasks', (req, res) => {
     console.log('Received POST request to /api/tasks');
     console.log('Request body:', req.body);
 
-    const { task_id, title, content, type, point, start_time, end_time, picture } = req.body;
+    const { task_id, title, content, type, point, start_time, end_time, picture, bot_id, link, partner_code } = req.body;
 
     if (!task_id || !title || !content) {
         console.log('Invalid input: missing required fields');
         return res.status(400).json({ message: 'Task ID, title, and content are required' });
     }
     
-    const sql = 'INSERT INTO telegram_tasks (task_id, title, content, type, point, start_time, end_time, picture) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-    const params = [task_id, title, content, type, point, start_time, end_time, picture];
+    const sql = 'INSERT INTO telegram_tasks (task_id, title, content, type, point, start_time, end_time, picture, bot_id, link, partner_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    const params = [task_id, title, content, type, point, start_time, end_time, picture, bot_id, link, partner_code];
     
     console.log('Executing SQL:', sql);
     console.log('With parameters:', params);
@@ -196,9 +151,9 @@ app.post('/api/tasks', (req, res) => {
 
 app.put('/api/tasks/:id', (req, res) => {
     const { id } = req.params;
-    const { task_id, title, content, type, point, start_time, end_time, picture } = req.body;
-    const sql = 'UPDATE telegram_tasks SET task_id = ?, title = ?, content = ?, type = ?, point = ?, start_time = ?, end_time = ?, picture = ? WHERE id = ?';
-    db.query(sql, [task_id, title, content, type, point, start_time, end_time, picture, id], (err, results) => {
+    const { task_id, title, content, type, point, start_time, end_time, picture, bot_id, link, partner_code } = req.body;
+    const sql = 'UPDATE telegram_tasks SET task_id = ?, title = ?, content = ?, type = ?, point = ?, start_time = ?, end_time = ?, picture = ?, bot_id = ?, link = ?, partner_code = ? WHERE id = ?';
+    db.query(sql, [task_id, title, content, type, point, start_time, end_time, picture, bot_id, link, partner_code, id], (err, results) => {
       if (err) {
         console.error('Error updating task:', err);
         return res.status(500).json({ message: 'Error updating task', error: err.message });
@@ -222,7 +177,7 @@ app.delete('/api/tasks/:id', (req, res) => {
 // API routes for users
 app.get('/api/users', (req, res) => {
     const sql = 'SELECT * FROM users';
-    usersDb.query(sql, (err, results) => {
+    db.query(sql, (err, results) => {
         if (err) {
             console.error('Error fetching users:', err);
             return res.status(500).json({ message: 'Error fetching users', error: err.message });
@@ -235,7 +190,7 @@ app.post('/api/users', (req, res) => {
     const { email, wallet_address, name } = req.body;
     
     const sql = 'INSERT INTO users (email, wallet_address, name) VALUES (?, ?, ?)';
-    usersDb.query(sql, [email, wallet_address, name], (err, result) => {
+    db.query(sql, [email, wallet_address, name], (err, result) => {
         if (err) {
             console.error('Error creating user:', err);
             return res.status(500).json({ message: 'Error creating user', error: err.message });
@@ -247,7 +202,7 @@ app.post('/api/users', (req, res) => {
 // API routes for telegram users
 app.get('/api/telegram-users', (req, res) => {
     const sql = 'SELECT * FROM telegram_users';
-    usersDb.query(sql, (err, results) => {
+    db.query(sql, (err, results) => {
         if (err) {
             console.error('Error fetching telegram users:', err);
             return res.status(500).json({ message: 'Error fetching telegram users', error: err.message });
@@ -261,12 +216,32 @@ app.post('/api/telegram-users', (req, res) => {
     const telegram_id_bot_id = `${telegram_id}_${bot_id}`;
     
     const sql = 'INSERT INTO telegram_users (telegram_id_bot_id, telegram_id, bot_id, username, lastname, firstname) VALUES (?, ?, ?, ?, ?, ?)';
-    usersDb.query(sql, [telegram_id_bot_id, telegram_id, bot_id, username, lastname, firstname], (err, result) => {
+    db.query(sql, [telegram_id_bot_id, telegram_id, bot_id, username, lastname, firstname], (err, result) => {
         if (err) {
             console.error('Error creating telegram user:', err);
             return res.status(500).json({ message: 'Error creating telegram user', error: err.message });
         }
         res.status(201).json({ message: 'Telegram user created', id: result.insertId });
+    });
+});
+
+// API route for telegram invite logs
+app.get('/api/telegram-invite-logs', (req, res) => {
+    const { code } = req.query;
+    let sql = 'SELECT * FROM telegram_invite_logs';
+    const params = [];
+  
+    if (code) {
+      sql += ' WHERE code = ?';
+      params.push(code);
+    }
+  
+    db.query(sql, params, (err, results) => {
+      if (err) {
+        console.error('Error fetching invite logs:', err);
+        return res.status(500).json({ message: 'Error fetching invite logs', error: err.message });
+      }
+      res.json(results);
     });
 });
 
@@ -276,7 +251,7 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'frontend', 'build', 'index.html'));
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

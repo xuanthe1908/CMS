@@ -12,7 +12,7 @@ const TelegramUsers = () => {
 
   const fetchTelegramUsers = () => {
     setLoading(true);
-    fetch('/api/telegram-users')
+    fetch(`${process.env.REACT_APP_API_URL}/api/telegram-users`)
       .then((res) => res.json())
       .then((data) => {
         setTelegramUsers(data);

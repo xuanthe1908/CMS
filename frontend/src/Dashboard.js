@@ -26,7 +26,7 @@ const Dashboard = () => {
 
   const fetchData = () => {
     setLoading(true);
-    fetch('/api/tasks', { credentials: 'include' })
+    fetch(`${process.env.REACT_APP_API_URL}/api/tasks`, { credentials: 'include' })
       .then((res) => {
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
@@ -47,7 +47,7 @@ const Dashboard = () => {
 
   const handleCreate = (values) => {
     console.log('Creating task with:', values);
-    fetch('/api/tasks', {
+    fetch(`${process.env.REACT_APP_API_URL}/api/tasks`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ const Dashboard = () => {
   };
 
   const handleDelete = (id) => {
-    fetch(`/api/tasks/${id}`, {
+    fetch(`${process.env.REACT_APP_API_URL}/api/tasks/${id}`, {
       method: 'DELETE',
       credentials: 'include'
     })
@@ -106,7 +106,7 @@ const Dashboard = () => {
   };
 
   const handleUpdate = (values) => {
-    fetch(`/api/tasks/${editingTask.id}`, {
+    fetch(`${process.env.REACT_APP_API_URL}/api/tasks/${editingTask.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -126,7 +126,7 @@ const Dashboard = () => {
   const handleSearch = (value) => {
     console.log('Searching with:', { value, criteria: searchCriteria });
     setLoading(true);
-    fetch(`/api/tasks?search=${encodeURIComponent(value)}&criteria=${encodeURIComponent(searchCriteria)}`, { credentials: 'include' })
+    fetch(`${process.env.REACT_APP_API_URL}/api/tasks?search=${encodeURIComponent(value)}&criteria=${encodeURIComponent(searchCriteria)}`, { credentials: 'include' })
       .then((res) => {
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
