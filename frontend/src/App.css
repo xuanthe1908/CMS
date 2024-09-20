@@ -36,3 +36,17 @@
     transform: rotate(360deg);
   }
 }
+
+@media (max-width: 768px) {
+  .App-header {
+    padding: 20px;
+  }
+  
+  .app-layout .app-content {
+    padding: 0 15px !important;
+  }
+
+  .app-layout .app-content > div {
+    padding: 15px !important;
+  }
+}

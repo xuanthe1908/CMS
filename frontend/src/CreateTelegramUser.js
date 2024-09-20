@@ -25,9 +25,9 @@ const CreateTelegramUser = () => {
   };
 
   return (
-    <div>
-      <h2>Create Telegram User</h2>
-      <Form form={form} onFinish={onFinish}>
+    <div style={{ padding: '10px' }}>
+      <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Create Telegram User</h2>
+      <Form form={form} onFinish={onFinish} layout="vertical">
         <Form.Item name="telegram_id" label="Telegram ID" rules={[{ required: true }]}>
           <Input />
         </Form.Item>
@@ -43,23 +43,23 @@ const CreateTelegramUser = () => {
         <Form.Item name="firstname" label="First Name">
           <Input />
         </Form.Item>
-        <Form.Item name="is_premium" label="Premium" valuePropName="checked">
-          <Checkbox />
+        <Form.Item name="is_premium" valuePropName="checked">
+          <Checkbox>Premium</Checkbox>
         </Form.Item>
         <Form.Item name="point" label="Points">
-          <InputNumber min={0} />
+          <InputNumber min={0} style={{ width: '100%' }} />
         </Form.Item>
-        <Form.Item name="checkin" label="Checkin" valuePropName="checked">
-          <Checkbox />
+        <Form.Item name="checkin" valuePropName="checked">
+          <Checkbox>Checkin</Checkbox>
         </Form.Item>
         <Form.Item name="usdt" label="USDT">
-          <InputNumber min={0} />
+          <InputNumber min={0} style={{ width: '100%' }} />
         </Form.Item>
         <Form.Item name="count_invite_event" label="Invite Count">
-          <InputNumber min={0} />
+          <InputNumber min={0} style={{ width: '100%' }} />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit">Create</Button>
+          <Button type="primary" htmlType="submit" block>Create</Button>
         </Form.Item>
       </Form>
     </div>

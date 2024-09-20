@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Input, message } from 'antd';
+import { Table, Input, message, Card } from 'antd';
 
 const { Search } = Input;
 
@@ -57,7 +57,7 @@ const TelegramInviteLogs = () => {
       key: 'bot_id',
     },
     {
-      title: 'Is Premium',
+      title: 'Premium',
       dataIndex: 'is_premium',
       key: 'is_premium',
       render: (isPremium) => (isPremium ? 'Yes' : 'No'),
@@ -71,20 +71,22 @@ const TelegramInviteLogs = () => {
   ];
 
   return (
-    <div>
-      <h2>Telegram Invite Logs</h2>
+    <Card title="Telegram Invite Logs" style={{ margin: '10px' }}>
       <Search
         placeholder="Search by code"
         onSearch={handleSearch}
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 16, width: '100%' }}
       />
       <Table
         columns={columns}
         dataSource={inviteLogs}
         rowKey="id"
         loading={loading}
+        scroll={{ x: true }}
+        size="small"
+        pagination={{ pageSize: 10 }}
       />
-    </div>
+    </Card>
   );
 };
 

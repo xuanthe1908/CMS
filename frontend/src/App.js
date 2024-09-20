@@ -49,25 +49,23 @@ function App() {
       <Router>
         <Layout style={{ minHeight: '100vh' }}>
           {user && <Header onLogout={handleLogout} />}
-          <Content style={{ padding: '0 50px', marginTop: 64 }}>
-            <div style={{ background: '#fff', padding: 24, minHeight: 380 }}>
-              <Routes>
-                <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
-                <Route 
-                  path="/dashboard" 
-                  element={user ? <Dashboard /> : <Navigate to="/login" />} 
-                />
-                <Route 
-                  path="/create-user"
-                  element={user ? <CreateUser /> : <Navigate to="/login" />}
-                />
-                <Route
-                  path="/create-telegram-user" 
-                  element={user ? <CreateTelegramUser /> : <Navigate to="/login" />}
-                />
-                <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
-              </Routes>
-            </div>
+          <Content style={{ padding: '10px', marginTop: user ? 64 : 0 }}>
+            <Routes>
+              <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
+              <Route 
+                path="/dashboard" 
+                element={user ? <Dashboard /> : <Navigate to="/login" />} 
+              />
+              <Route 
+                path="/create-user"
+                element={user ? <CreateUser /> : <Navigate to="/login" />}
+              />
+              <Route
+                path="/create-telegram-user" 
+                element={user ? <CreateTelegramUser /> : <Navigate to="/login" />}
+              />
+              <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
+            </Routes>
           </Content>
         </Layout>
       </Router>

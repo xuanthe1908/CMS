@@ -33,9 +33,9 @@ const CreateUser = () => {
   };
 
   return (
-    <div>
-      <h2>Create User</h2>
-      <Form form={form} onFinish={onFinish}>
+    <div style={{ padding: '10px' }}>
+      <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Create User</h2>
+      <Form form={form} onFinish={onFinish} layout="vertical">
         <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email' }]}>
           <Input />
         </Form.Item>
@@ -52,27 +52,27 @@ const CreateUser = () => {
           <Input />
         </Form.Item>
         <Form.Item name="avatar" label="Avatar">
-        <Upload
+          <Upload
             name="avatar"
             action={`${process.env.REACT_APP_API_URL}/api/upload`}
             listType="picture"
             maxCount={1}
           >
-            <Button icon={<UploadOutlined />}>Click to upload</Button>
+            <Button icon={<UploadOutlined />} block>Upload Avatar</Button>
           </Upload>
         </Form.Item>
         <Form.Item name="cover" label="Cover">
-        <Upload
+          <Upload
             name="cover"
             action={`${process.env.REACT_APP_API_URL}/api/upload`}
             listType="picture"
             maxCount={1}
           >
-            <Button icon={<UploadOutlined />}>Click to upload</Button>
+            <Button icon={<UploadOutlined />} block>Upload Cover</Button>
           </Upload>
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit">Create</Button>
+          <Button type="primary" htmlType="submit" block>Create User</Button>
         </Form.Item>
       </Form>
     </div>

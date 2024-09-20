@@ -1,11 +1,12 @@
 import React, { useContext } from 'react';
 import { Layout, Avatar, Dropdown, Menu, Typography } from 'antd';
-import { UserOutlined, LogoutOutlined } from '@ant-design/icons';
+import { UserOutlined, LogoutOutlined, MenuOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from './AuthContext';
+import Title from 'antd/es/skeleton/Title';
 
 const { Header } = Layout;
-const { Title } = Typography;
+const { Text } = Typography;
 
 const AppHeader = ({ onLogout }) => {
   const { user } = useContext(AuthContext);
@@ -27,19 +28,22 @@ const AppHeader = ({ onLogout }) => {
   return (
     <Header style={{ 
       background: '#000', 
-      padding: '0 20px', 
+      padding: '0 10px', 
       display: 'flex', 
       justifyContent: 'space-between', 
       alignItems: 'center',
-      color: '#fff'
+      position: 'fixed',
+      width: '100%',
+      zIndex: 1000,
     }}>
       <div style={{ display: 'flex', alignItems: 'center' }}>
+        <MenuOutlined style={{ color: '#fff', fontSize: '20px', marginRight: '10px' }} />
         <img 
           src="https://genesis-devv2.aielabs.io/images/common/logo-header.png" 
           alt="Genesis Logo" 
-          style={{ height: '40px', marginRight: '10px' }}
+          style={{ height: '30px' }}
         />
-        <Title level={4} style={{ margin: 0, color: '#fff' }}>
+        <Title level={4} style={{margin:0, color:'#fff'}}>
           Genesis Marketplace CMS
         </Title>
       </div>
@@ -47,7 +51,9 @@ const AppHeader = ({ onLogout }) => {
         <Dropdown overlay={menu} placement="bottomRight" arrow>
           <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
             <Avatar icon={<UserOutlined />} style={{ backgroundColor: '#1890ff' }} />
-            <span style={{ marginLeft: 8, color: '#fff' }}>{user.displayName || user.email}</span>
+            <Text ellipsis style={{ color: '#fff', marginLeft: '8px', maxWidth: '100px' }}>
+              {user.displayName || user.email}
+            </Text>
           </div>
         </Dropdown>
       )}

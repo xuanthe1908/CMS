@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, message, Tag, Button } from 'antd';
+import { Table, message, Tag, Button, Card, Space } from 'antd';
 import { Link } from 'react-router-dom';
 
 const Users = () => {
@@ -37,51 +37,9 @@ const Users = () => {
       key: 'email',
     },
     {
-      title: 'Wallet Address',
-      dataIndex: 'wallet_address',
-      key: 'wallet_address',
-      render: (address) => address || 'N/A',
-    },
-    {
-      title: 'Avatar',
-      dataIndex: 'avatar',
-      key: 'avatar',
-      render: (avatar) => avatar ? <img src={avatar} alt="avatar" style={{ width: 50, height: 50, borderRadius: '50%' }} /> : 'N/A',
-    },
-    {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
-    },
-    {
-      title: 'Stripe Customer ID',
-      dataIndex: 'stripe_customer_id',
-      key: 'stripe_customer_id',
-      render: (id) => id || 'N/A',
-    },
-    {
-      title: 'Created At',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      render: (date) => new Date(date).toLocaleString(),
-    },
-    {
-      title: 'Updated At',
-      dataIndex: 'updated_at',
-      key: 'updated_at',
-      render: (date) => new Date(date).toLocaleString(),
-    },
-    {
-      title: 'Referral Code',
-      dataIndex: 'referral_code',
-      key: 'referral_code',
-      render: (code) => code || 'N/A',
-    },
-    {
-      title: 'Cover',
-      dataIndex: 'cover',
-      key: 'cover',
-      render: (cover) => cover ? <img src={cover} alt="cover" style={{ width: 100 }} /> : 'N/A',
     },
     {
       title: 'Auth Account',
@@ -92,39 +50,6 @@ const Users = () => {
           {isAuth ? 'Yes' : 'No'}
         </Tag>
       ),
-    },
-    {
-      title: 'Images Created',
-      dataIndex: 'number_image_created',
-      key: 'number_image_created',
-    },
-    {
-      title: 'First Visit',
-      dataIndex: 'is_first_visit',
-      key: 'is_first_visit',
-      render: (isFirst) => (
-        <Tag color={isFirst ? 'blue' : 'gray'}>
-          {isFirst ? 'Yes' : 'No'}
-        </Tag>
-      ),
-    },
-    {
-      title: 'TMA Code',
-      dataIndex: 'tma_code',
-      key: 'tma_code',
-      render: (code) => code || 'N/A',
-    },
-    {
-      title: 'Web Timestamp',
-      dataIndex: 'timestamp_web',
-      key: 'timestamp_web',
-      render: (timestamp) => timestamp ? new Date(timestamp).toLocaleString() : 'N/A',
-    },
-    {
-      title: 'Miniapp Timestamp',
-      dataIndex: 'timestamp_miniapp',
-      key: 'timestamp_miniapp',
-      render: (timestamp) => timestamp ? new Date(timestamp).toLocaleString() : 'N/A',
     },
     {
       title: 'Telegram Premium',
@@ -139,21 +64,36 @@ const Users = () => {
   ];
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-        <h2>Users</h2>
+    <Card title="Users" style={{ margin: '10px' }} 
+      extra={
         <Button type="primary">
           <Link to="/create-user">Create User</Link>
         </Button>
-      </div>
+      }
+    >
       <Table
         columns={columns}
         dataSource={users}
         rowKey="id"
         loading={loading}
-        scroll={{ x: 'max-content' }}
+        scroll={{ x: true }}
+        size="small"
+        pagination={{ pageSize: 10 }}
+        expandable={{
+          expandedRowRender: record => (
+            <Space direction="vertical">
+              <p><strong>Wallet Address:</strong> {record.wallet_address || 'N/A'}</p>
+              <p><strong>Stripe Customer ID:</strong> {record.stripe_customer_id || 'N/A'}</p>
+              <p><strong>Created At:</strong> {new Date(record.created_at).toLocaleString()}</p>
+              <p><strong>Updated At:</strong> {new Date(record.updated_at).toLocaleString()}</p>
+              <p><strong>Referral Code:</strong> {record.referral_code || 'N/A'}</p>
+              <p><strong>Images Created:</strong> {record.number_image_created}</p>
+              <p><strong>TMA Code:</strong> {record.tma_code || 'N/A'}</p>
+            </Space>
+          ),
+        }}
       />
-    </div>
+    </Card>
   );
 };
 

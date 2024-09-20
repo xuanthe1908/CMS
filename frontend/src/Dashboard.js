@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Space, Input, Select, Modal, Form, message, Tabs } from 'antd';
+import { Table, Button, Space, Input, Select, Modal, Form, message, Tabs, Card } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import Users from './Users';
 import TelegramUsers from './TelegramUsers';
@@ -151,75 +151,76 @@ const Dashboard = () => {
       dataIndex: 'id',
       key: 'id',
       sorter: (a, b) => a.id - b.id,
+      width: 70,
     },
     {
       title: 'Task ID',
       dataIndex: 'task_id',
       key: 'task_id',
+      width: 100,
     },
     {
       title: 'Title',
       dataIndex: 'title',
       key: 'title',
+      width: 150,
     },
     {
       title: 'Content',
       dataIndex: 'content',
       key: 'content',
+      width: 200,
+      ellipsis: true,
     },
     {
       title: 'Type',
       dataIndex: 'type',
       key: 'type',
+      width: 100,
     },
     {
       title: 'Point',
       dataIndex: 'point',
       key: 'point',
+      width: 80,
     },
     {
       title: 'Start Time',
       dataIndex: 'start_time',
       key: 'start_time',
+      width: 150,
       render: (time) => new Date(time).toLocaleString(),
     },
     {
       title: 'End Time',
       dataIndex: 'end_time',
       key: 'end_time',
+      width: 150,
       render: (time) => new Date(time).toLocaleString(),
-    },
-    {
-      title: 'Picture',
-      dataIndex: 'picture',
-      key: 'picture',
-      render: (text) => <img src={text} alt="task" style={{ width: '50px', height: '50px' }} />,
     },
     {
       title: 'Action',
       key: 'action',
+      fixed: 'right',
+      width: 100,
       render: (text, record) => (
-        <Space size="middle">
-          <Button type="primary" icon={<EditOutlined />} onClick={() => handleEdit(record)}>
-            Edit
-          </Button>
-          <Button type="danger" icon={<DeleteOutlined />} onClick={() => showDeleteConfirm(record.id)}>
-            Delete
-          </Button>
+        <Space size="small">
+          <Button type="primary" icon={<EditOutlined />} onClick={() => handleEdit(record)} />
+          <Button type="danger" icon={<DeleteOutlined />} onClick={() => showDeleteConfirm(record.id)} />
         </Space>
       ),
     },
   ];
 
   return (
-    <div>
-      <Tabs defaultActiveKey="1">
+    <div style={{ padding: '10px' }}>
+      <Tabs defaultActiveKey="1" tabPosition="top" style={{ marginBottom: '20px' }}>
         <TabPane tab="Tasks" key="1">
-          <div style={{ marginBottom: 16 }}>
-            <Space>
+          <Card>
+            <Space direction="vertical" style={{ width: '100%', marginBottom: '10px' }}>
               <Select 
                 defaultValue="ID" 
-                style={{ width: 120 }} 
+                style={{ width: '100%' }} 
                 onChange={(value) => setSearchCriteria(value)}
               >
                 <Option value="ID">ID</Option>
@@ -228,15 +229,23 @@ const Dashboard = () => {
               </Select>
               <Search 
                 placeholder="Search..." 
-                enterButton 
                 onSearch={handleSearch}
+                style={{ width: '100%' }}
               />
-              <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)}>
+              <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)} block>
                 Create
               </Button>
             </Space>
-          </div>
-          <Table columns={columns} dataSource={data} rowKey="id" loading={loading} />
+            <Table 
+              columns={columns} 
+              dataSource={data} 
+              rowKey="id" 
+              loading={loading} 
+              scroll={{ x: 1200 }}
+              size="small"
+              pagination={{ pageSize: 10 }}
+            />
+          </Card>
         </TabPane>
         <TabPane tab="Users" key="2">
           <Users />
