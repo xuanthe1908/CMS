@@ -1,34 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import { message } from 'antd';
+import React, { useState, useEffect, useContext } from 'react';
+import { message, Spin } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import AuthContext from './AuthContext';
 import './Login.css';
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
     const navigate = useNavigate();
+    const { setUser } = useContext(AuthContext);
 
     useEffect(() => {
         checkAuthStatus();
     }, []);
 
-    const checkAuthStatus = () => {
-        fetch(`${process.env.REACT_APP_API_URL}/api/user`)
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error('Not authenticated');
-                }
-                return res.json();
-            })
-            .then(data => {
-                console.log('User data:', data);
-                if (data.id) {
-                    console.log('User is authenticated, redirecting to dashboard');
+    const checkAuthStatus = async () => {
+        try {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/verify`, {
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.user) {
+                    setUser(data.user);
                     navigate('/dashboard');
                 }
-            })
-            .catch(err => {
-                console.error('Error checking auth status:', err);
-            });
+            }
+        } catch (err) {
+            console.error('Error checking auth status:', err);
+        }
     };
 
     const togglePasswordVisibility = () => {
@@ -36,33 +40,76 @@ const Login = () => {
     };
 
     const handleGoogleLogin = () => {
-        console.log('Initiating Google login');
-        const googleAuthUrl = `${process.env.REACT_APP_API_URL}/auth/google`;
-        console.log('Redirecting to:', googleAuthUrl);
-        window.location.href = googleAuthUrl;
+        window.location.href = `${process.env.REACT_APP_API_URL}/auth/google`;
     };
 
-    const handleSubmit = (e) => {
+    const handleAccountLogin = async (e) => {
         e.preventDefault();
-        message.info('Username/password login is not implemented yet');
+        setError('');
+        setIsLoading(true);
+
+        try {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ username, password }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                setUser(data.user);
+                message.success('Login successful');
+                navigate('/dashboard');
+            } else {
+                setError(data.message || 'Login failed');
+                message.error(data.message || 'Login failed');
+            }
+        } catch (err) {
+            console.error('Login error:', err);
+            setError('Network error. Please try again.');
+            message.error('Network error. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
         <div className="login-container">
             <h2>Welcome back</h2>
-            <p>Don't have an account? <a href="/signup">Sign up.</a></p>
+            <p>Please sign in to continue</p>
 
-            <button className="google-btn" onClick={handleGoogleLogin}>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Logo_2013_Google.png" alt="Google Logo" className="google-logo"/>
+            <button 
+                className="google-btn" 
+                onClick={handleGoogleLogin}
+                disabled={isLoading}
+            >
+                <img 
+                    src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Logo_2013_Google.png" 
+                    alt="Google Logo" 
+                    className="google-logo"
+                />
                 Continue with Google
             </button>
 
-            <div className="divider">Or continue with username/email</div>
+            <div className="divider">Or sign in with username</div>
 
-            <form className="login-form" onSubmit={handleSubmit}>
+            {error && <div className="error-message">{error}</div>}
+
+            <form className="login-form" onSubmit={handleAccountLogin}>
                 <label>
-                    Username or email address
-                    <input type="text" name="username" placeholder="Username or email" required />
+                    Username
+                    <input 
+                        type="text" 
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        placeholder="Enter username" 
+                        disabled={isLoading}
+                        required 
+                    />
                 </label>
 
                 <label>
@@ -70,19 +117,28 @@ const Login = () => {
                     <div className="password-container">
                         <input
                             type={showPassword ? "text" : "password"}
-                            name="password"
-                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Enter password"
+                            disabled={isLoading}
                             required
                         />
-                        <span onClick={togglePasswordVisibility} className="password-toggle">
+                        <span 
+                            onClick={togglePasswordVisibility} 
+                            className="password-toggle"
+                        >
                             {showPassword ? "Hide" : "Show"}
                         </span>
                     </div>
                 </label>
 
-                <a href="#" className="forgot-password">Forgot your password?</a>
-
-                <button type="submit" className="login-btn">Sign in</button>
+                <button 
+                    type="submit" 
+                    className="login-btn" 
+                    disabled={isLoading}
+                >
+                    {isLoading ? <Spin size="small" /> : 'Sign in'}
+                </button>
             </form>
         </div>
     );
